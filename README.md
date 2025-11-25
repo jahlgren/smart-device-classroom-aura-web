@@ -6,7 +6,15 @@ This project provides APIs, a UI dashboard, and database storage for sensor data
 
 ## Development Setup
 
-### Environment variables
+### 1. Install
+
+Install dependencies:
+
+```
+npm install
+```
+
+### 2. Environment variables
 
 Create a .env file in the project root:
 
@@ -14,7 +22,7 @@ Create a .env file in the project root:
 DATABASE_URL=postgres://devuser:devpass@localhost:5432/devdb
 ```
 
-### Start Postgres using Docker
+### 3. Start Postgres using Docker
 
 Make sure Docker is installed, then run:
 
@@ -24,7 +32,7 @@ docker compose up --detach
 
 This starts the Postgres database defined in docker-compose.yml.
 
-### Run the development server
+### 4. Run the development server
 
 ```
 npm run dev
