@@ -140,6 +140,15 @@ function DeviceItem({ device }: { device: Device }) {
                 </p>
               </div>
 
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Description
+                </p>
+                <p className="font-mono text-sm font-semibold text-slate-900">
+                  {device.description || "—"}
+                </p>
+              </div>
+
               <div className="grid gap-3 sm:grid-cols-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
