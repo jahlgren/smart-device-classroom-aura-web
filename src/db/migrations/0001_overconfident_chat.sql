@@ -1,0 +1,1 @@
+ALTER TABLE "device" ALTER COLUMN "id" SET DATA TYPE varchar(6);
