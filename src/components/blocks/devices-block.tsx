@@ -315,6 +315,7 @@ function ReadingsChart({ readings }: { readings: Reading[] }) {
           strokeWidth={2}
           dot={false}
           animateNewValues={false}
+          isAnimationActive={false}
         />
       </LineChart>
     </ChartContainer>
@@ -326,30 +327,30 @@ function ReadingsChart({ readings }: { readings: Reading[] }) {
 const statusLevels = [
   {
     limit: 50,
-    label: "Excellent",
+    label: "Good",
     badgeClass:
       "border-emerald-200 bg-emerald-50/80 text-emerald-700 shadow-inner shadow-emerald-100",
   },
   {
     limit: 100,
-    label: "Good",
+    label: "Satisfactory",
     badgeClass:
       "border-lime-200 bg-lime-50/80 text-lime-700 shadow-inner shadow-lime-100",
   },
   {
-    limit: 200,
+    limit: 150,
     label: "Moderate",
     badgeClass:
       "border-amber-200 bg-amber-50/80 text-amber-700 shadow-inner shadow-amber-100",
   },
   {
-    limit: 300,
+    limit: 200,
     label: "Unhealthy",
     badgeClass:
       "border-orange-200 bg-orange-50/80 text-orange-700 shadow-inner shadow-orange-100",
   },
   {
-    limit: 500,
+    limit: 1000,
     label: "Hazardous",
     badgeClass:
       "border-rose-200 bg-rose-50/80 text-rose-700 shadow-inner shadow-rose-100",
@@ -417,36 +418,21 @@ function TrendPill({ delta }: { delta: number }) {
 }
 
 function getSmoothedTrend(readings: Reading[], minutes: number) {
-  if (readings.length < 1) return null;
+  if (readings.length < 2) return null;
 
-  const latest = readings[readings.length - 1];
-  const windowStart = new Date(new Date(latest.createdAt).getTime() - minutes * 60 * 1000);
-  const mappedReadings = readings
-    .map(v => ({...v, createdAt: new Date(v.createdAt)}));
+  // TODO: Implement smoothing..
 
-  let windowReadings = mappedReadings.filter(r => r.createdAt >= windowStart);
-  
-  if(windowReadings.length < 2 && readings.length >= 2)
-    windowReadings = mappedReadings.slice(mappedReadings.length-2, mappedReadings.length)
-  else if (windowReadings.length < 2)
-    return null;
-  
-  // Convert timestamps to minutes relative to the first point
-  const t0 = windowReadings[0].createdAt.getTime();
+  const latest = {...readings[readings.length-1]};
+  const previous = {...readings[readings.length-2]};
 
-  const xs = windowReadings.map(r => (r.createdAt.getTime() - t0) / 60000); // minutes
-  const ys = windowReadings.map(r => r.value);
+  latest.createdAt = new Date(latest.createdAt);
+  previous.createdAt = new Date(previous.createdAt);
 
-  const n = xs.length;
+  const elapsed = latest.createdAt.getTime() - previous.createdAt.getTime();
+  const minuteMultiplier = elapsed / 60000.0;
 
-  // Compute sums
-  const sumX = xs.reduce((a, b) => a + b, 0);
-  const sumY = ys.reduce((a, b) => a + b, 0);
-  const sumXY = xs.reduce((sum, x, i) => sum + x * ys[i], 0);
-  const sumXX = xs.reduce((sum, x) => sum + x * x, 0);
+  const delta = latest.value - previous.value;
+  const ptsPerMin = delta * minuteMultiplier;
 
-  // Slope (units per minute)
-  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-
-  return Math.round(slope);
+  return Math.round(ptsPerMin);
 }
