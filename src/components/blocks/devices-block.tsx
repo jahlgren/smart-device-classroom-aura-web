@@ -81,7 +81,7 @@ function DeviceItem({ device }: { device: Device }) {
   //     ? currentAirQualityReading.value - previousAirQualityReading.value
   //     : null;
 
-  const trendDelta = getSmoothedTrend(readings || [], 5);
+  const trendDelta = getSmoothedTrend(readings || []);
 
   const statusBadge = currentAirQualityReading
     ? getAirQualityStatusBadge(currentAirQualityReading.value)
@@ -417,13 +417,21 @@ function TrendPill({ delta }: { delta: number }) {
   );
 }
 
-function getSmoothedTrend(readings: Reading[], minutes: number) {
+function getSmoothedTrend(readings: Reading[]) {
   if (readings.length < 2) return null;
 
   // TODO: Implement smoothing..
+  let avgValue = 0;
+  let count = 0;
+
+  for(let i = readings.length - 1; i >= Math.max(0, readings.length-10); i--) {
+    avgValue += readings[i].value;
+    count++;
+  }
+  avgValue /= count;
 
   const latest = {...readings[readings.length-1]};
-  const previous = {...readings[readings.length-2]};
+  const previous = {...readings[Math.max(0, readings.length-10)]};
 
   latest.createdAt = new Date(latest.createdAt);
   previous.createdAt = new Date(previous.createdAt);
@@ -431,7 +439,7 @@ function getSmoothedTrend(readings: Reading[], minutes: number) {
   const elapsed = latest.createdAt.getTime() - previous.createdAt.getTime();
   const minuteMultiplier = elapsed / 60000.0;
 
-  const delta = latest.value - previous.value;
+  const delta = latest.value - avgValue;
   const ptsPerMin = delta * minuteMultiplier;
 
   return Math.round(ptsPerMin);
