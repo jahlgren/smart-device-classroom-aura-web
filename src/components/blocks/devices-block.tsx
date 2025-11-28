@@ -314,6 +314,7 @@ function ReadingsChart({ readings }: { readings: Reading[] }) {
           stroke={`var(--color-${"airQuality"})`}
           strokeWidth={2}
           dot={false}
+          animateNewValues={false}
         />
       </LineChart>
     </ChartContainer>

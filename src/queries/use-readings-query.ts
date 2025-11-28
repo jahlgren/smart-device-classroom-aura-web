@@ -13,6 +13,6 @@ export function useReadingsQuery(deviceId: string) {
     queryFn: () => fetchReadings(deviceId),
     staleTime: 20 * 1000,
     retry: false,
-    refetchInterval: 30 * 1000
+    refetchInterval: 5 * 1000
   });
 };
