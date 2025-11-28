@@ -91,53 +91,46 @@ function DeviceItem({ device }: { device: Device }) {
   const handleRemove = () => {
     deleteDevice({ id: device.id });
   };
-
+  
   return (
-    <li className="flex flex-col gap-3 rounded border border-red-600 p-4">
-
-      <div className="flex items-center justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="-mr-2"
-              isPending={isPendingDeletion}
-            >
-              <MoreVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem disabled>
-              <Edit2 />
-              Update
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleRemove}>
-              <Trash />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
+    <li className="flex flex-col gap-3 rounded border border-slate-300 p-4">
       <div className="flex flex-col">
-        {isPendingReadings ? (
-          <div>
-            <Spinner /> Loading readings
-          </div>
-        ) : !readings || readings.length === 0 ? (
-          "No readings found"
-        ) : (
           <div className="space-y-4">
 
             <div className="grid gap-3 rounded-lg border border-slate-100 bg-slate-50/70 p-3 text-sm text-slate-700">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Device
-                </p>
-                <p className="font-mono text-sm font-semibold text-slate-900">
-                  {device.id}
-                </p>
+              <div className="flex w-full">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Device
+                  </p>
+                  <p className="font-mono text-sm font-semibold text-slate-900">
+                    {device.id}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-end">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="-mr-2"
+                        isPending={isPendingDeletion}
+                      >
+                        <MoreVertical />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem disabled>
+                        <Edit2 />
+                        Update
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleRemove}>
+                        <Trash />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               <div>
@@ -167,6 +160,10 @@ function DeviceItem({ device }: { device: Device }) {
                           {statusBadge.label}
                         </span>
                       ) : null}
+                    </div>
+                  ) : isPendingReadings ? (
+                    <div className="mt-1 flex items-center gap-4 text-sm text-slate-400">
+                      <Spinner /> Loading
                     </div>
                   ) : (
                     <p className="mt-1 text-sm text-slate-400">No readings</p>
@@ -209,9 +206,10 @@ function DeviceItem({ device }: { device: Device }) {
               </div>
             </div>
 
-            <ReadingsChart readings={airQualityReadings} />
+            { !readings || readings.length === 0 ? (
+              undefined
+            ) : <ReadingsChart readings={airQualityReadings} /> }
           </div>
-        )}
       </div>
     </li>
   );
