@@ -72,13 +72,16 @@ function DeviceItem({ device }: { device: Device }) {
 
   const currentAirQualityReading =
     airQualityReadings[airQualityReadings.length - 1];
-  const previousAirQualityReading =
-    airQualityReadings[airQualityReadings.length - 2];
+    
+  // const previousAirQualityReading =
+  //   airQualityReadings[airQualityReadings.length - 2];
 
-  const trendDelta =
-    currentAirQualityReading && previousAirQualityReading
-      ? currentAirQualityReading.value - previousAirQualityReading.value
-      : null;
+  // const trendDelta =
+  //   currentAirQualityReading && previousAirQualityReading
+  //     ? currentAirQualityReading.value - previousAirQualityReading.value
+  //     : null;
+
+  const trendDelta = getSmoothedTrend(readings || [], 5);
 
   const statusBadge = currentAirQualityReading
     ? getAirQualityStatusBadge(currentAirQualityReading.value)
@@ -407,7 +410,42 @@ function TrendPill({ delta }: { delta: number }) {
       className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-semibold shadow-inner ${tone}`}
     >
       <Icon className="h-3.5 w-3.5" />
-      {Math.abs(delta)} pts
+      {Math.abs(delta)} pts/min
     </span>
   );
+}
+
+function getSmoothedTrend(readings: Reading[], minutes: number) {
+  if (readings.length < 1) return null;
+
+  const latest = readings[readings.length - 1];
+  const windowStart = new Date(new Date(latest.createdAt).getTime() - minutes * 60 * 1000);
+  const mappedReadings = readings
+    .map(v => ({...v, createdAt: new Date(v.createdAt)}));
+
+  let windowReadings = mappedReadings.filter(r => r.createdAt >= windowStart);
+  
+  if(windowReadings.length < 2 && readings.length >= 2)
+    windowReadings = mappedReadings.slice(mappedReadings.length-2, mappedReadings.length)
+  else if (windowReadings.length < 2)
+    return null;
+  
+  // Convert timestamps to minutes relative to the first point
+  const t0 = windowReadings[0].createdAt.getTime();
+
+  const xs = windowReadings.map(r => (r.createdAt.getTime() - t0) / 60000); // minutes
+  const ys = windowReadings.map(r => r.value);
+
+  const n = xs.length;
+
+  // Compute sums
+  const sumX = xs.reduce((a, b) => a + b, 0);
+  const sumY = ys.reduce((a, b) => a + b, 0);
+  const sumXY = xs.reduce((sum, x, i) => sum + x * ys[i], 0);
+  const sumXX = xs.reduce((sum, x) => sum + x * x, 0);
+
+  // Slope (units per minute)
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+
+  return Math.round(slope);
 }
