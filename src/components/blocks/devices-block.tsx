@@ -306,6 +306,7 @@ function ReadingsChart({ readings }: { readings: Reading[] }) {
             fill={band.color}
             fillOpacity={0.25}
             ifOverflow="extendDomain"
+            isAnimationActive={false}
           />
         ))}
         <Line
@@ -314,7 +315,6 @@ function ReadingsChart({ readings }: { readings: Reading[] }) {
           stroke={`var(--color-${"airQuality"})`}
           strokeWidth={2}
           dot={false}
-          animateNewValues={false}
           isAnimationActive={false}
         />
       </LineChart>
