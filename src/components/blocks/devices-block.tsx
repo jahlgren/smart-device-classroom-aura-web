@@ -420,18 +420,18 @@ function TrendPill({ delta }: { delta: number }) {
 function getSmoothedTrend(readings: Reading[]) {
   if (readings.length < 2) return null;
 
-  // TODO: Implement smoothing..
   let avgValue = 0;
   let count = 0;
+  const MAX_COUNT = 3;
 
-  for(let i = readings.length - 1; i >= Math.max(0, readings.length-10); i--) {
+  for(let i = readings.length - 1; i >= Math.max(0, readings.length-MAX_COUNT); i--) {
     avgValue += readings[i].value;
     count++;
   }
   avgValue /= count;
 
   const latest = {...readings[readings.length-1]};
-  const previous = {...readings[Math.max(0, readings.length-10)]};
+  const previous = {...readings[Math.max(0, readings.length-MAX_COUNT)]};
 
   latest.createdAt = new Date(latest.createdAt);
   previous.createdAt = new Date(previous.createdAt);
